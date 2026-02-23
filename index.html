@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Validator with Line Numbers</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 40px;
+    text-align: center;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.editor-wrapper {
+    display: flex;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 200px; /* Fixed height container */
+
+}
+
+/* Make BOTH use identical font + line-height */
+.line-numbers {
+    background: #eee;
+    padding: 10px 8px;
+    text-align: right;
+    user-select: none;
+    color: #666;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 20px;   /* EXACT match */
+    white-space: pre;
+    overflow-y: hidden; /* IMPORTANT */
+}
+
+textarea {
+    width: 100%;
+    height: 200px;
+    border: none;
+    outline: none;
+    resize: none;
+    padding: 10px;
+    font-size: 14px;
+    font-family: monospace;
+    line-height: 20px;   /* EXACT match */
+    white-space: pre;
+    overflow: auto;
+}
+
+.message {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.valid { color: green; }
+.invalid { color: red; }
+
+#nonAsciiOutput {
+    height: 150px;
+    background-color: #fafafa;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    resize: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>ASCII Character Checker</h2>
+
+    <div class="editor-wrapper">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <textarea id="textInput" wrap="off" placeholder="Type multiple lines here..."></textarea>
+    </div>
+
+    <div id="result" class="message"></div>
+
+    <textarea id="nonAsciiOutput" 
+              placeholder="Detected non-ASCII characters will appear here..."
+              readonly></textarea>
+</div>
+
+<script>
+const inputField = document.getElementById("textInput");
+const resultDiv = document.getElementById("result");
+const nonAsciiOutput = document.getElementById("nonAsciiOutput");
+const lineNumbers = document.getElementById("lineNumbers");
+
+/* ===== Update Line Numbers ===== */
+function updateLineNumbers() {
+    const lineCount = inputField.value.split("\n").length;
+    let numbers = "";
+
+    for (let i = 1; i <= lineCount; i++) {
+        numbers += i + "\n";
+    }
+
+    lineNumbers.innerText = numbers;
+}
+
+/* Sync scroll */
+inputField.addEventListener("scroll", function () {
+    lineNumbers.scrollTop = inputField.scrollTop;
+});
+
+/* ASCII Validation */
+function validateASCII() {
+    const value = inputField.value;
+    const lines = value.split("\n");
+    let report = [];
+    let found = false;
+
+    lines.forEach((line, index) => {
+        const lineNumber = index + 1;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const code = char.charCodeAt(0);
+            if (code > 127) {
+                found = true;
+                const unicodeHex = "U+" + code.toString(16).toUpperCase().padStart(4, "0");
+                report.push(`Line ${lineNumber} | Character: "${char}" | Unicode: ${unicodeHex}`);
+            }
+        }
+    });
+
+    if (!found) {
+        resultDiv.textContent = "✔ All characters are ASCII.";
+        resultDiv.className = "message valid";
+        nonAsciiOutput.value = "";
+    } else {
+        resultDiv.textContent = "✖ Non-ASCII character(s) detected.";
+        resultDiv.className = "message invalid";
+        nonAsciiOutput.value = report.join("\n");
+    }
+}
+
+/* Combined event */
+inputField.addEventListener("input", () => {
+    updateLineNumbers();
+    validateASCII();
+});
+
+/* Initialize */
+updateLineNumbers();
+</script>
+
+</body>
+</html>
