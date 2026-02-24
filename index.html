@@ -150,7 +150,7 @@ textarea {
 <body>
 
 <div class="container">
-    <h2>ASCII Character Checker</h2>
+    <h2>ASCII Character Checker | Detect Non-ASCII Characters</h2>
 
     <div class="editor-wrapper">
         <div class="line-numbers" id="lineNumbers">1</div>
@@ -163,7 +163,7 @@ textarea {
               placeholder="Detected non-ASCII characters will appear here..."
               readonly></textarea>
 
-<label class="form-switch"> <input type="checkbox" id="strictMode" /> <i></i><br />Strict Mode (Alphanumeric only) </label>
+<label class="form-switch"> <input type="checkbox" id="strictMode" /> <i></i><br />Strict Mode (Alphanumeric & Space) </label>
 
 </div>
 
@@ -207,8 +207,8 @@ function validateASCII() {
             const code = char.charCodeAt(0);
 
             if (strictMode) {
-                // Strict mode: allow only alphanumeric [A-Za-z0-9]
-                if (!/[a-zA-Z0-9]/.test(char)) {
+                // Strict mode: allow only alphanumeric [A-Za-z0-9 ]
+                if (!/[a-zA-Z0-9 \n]/.test(char)) {
                     found = true;
                     const unicodeHex = "U+" + code.toString(16).toUpperCase().padStart(4, "0");
                     report.push(`Line ${lineNumber} | Character: "${char}" | Unicode: ${unicodeHex}`);
